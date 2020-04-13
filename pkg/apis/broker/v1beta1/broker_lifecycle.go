@@ -23,18 +23,28 @@ import (
 )
 
 var brokerCondSet = apis.NewLivingConditionSet(
-	BrokerConditionTopic,
-	BrokerConditionSubscription,
 	BrokerConditionIngress,
 	BrokerConditionAddressable,
+
+	BrokerConditionTopic,
+
+	BrokerConditionSubscription,
 )
 
 const (
-	BrokerConditionReady                           = apis.ConditionReady
-	BrokerConditionTopic        apis.ConditionType = "TopicReady"
+	BrokerConditionReady = apis.ConditionReady
+	// BrokerConditionIngress reports the availability of the Broker's ingress
+	// service.
+	BrokerConditionIngress apis.ConditionType = "IngressReady"
+	// BrokerConditionAddressable reports the status of the Broker's ingress
+	// address.
+	BrokerConditionAddressable apis.ConditionType = "Addressable"
+	// BrokerConditionTopic reports the status of the Broker's PubSub topic.
+	// THis condition is specific to the Google Cloud Broker.
+	BrokerConditionTopic apis.ConditionType = "TopicReady"
+	// BrokerConditionSubscription reports the status of the Broker's PubSub
+	// subscription. This condition is specific to the Google Cloud Broker.
 	BrokerConditionSubscription apis.ConditionType = "SubscriptionReady"
-	BrokerConditionIngress      apis.ConditionType = "IngressReady"
-	BrokerConditionAddressable  apis.ConditionType = "Addressable"
 )
 
 // GetCondition returns the condition currently associated with the given type, or nil.
@@ -57,6 +67,25 @@ func (bs *BrokerStatus) InitializeConditions() {
 	brokerCondSet.Manage(bs).InitializeConditions()
 }
 
+func (bs *BrokerStatus) PropagateIngressAvailability(ep *corev1.Endpoints) {
+	if duck.EndpointsAreAvailable(ep) {
+		brokerCondSet.Manage(bs).MarkTrue(BrokerConditionIngress)
+	} else {
+		bs.MarkIngressFailed("EndpointsUnavailable", "Endpoints %q are unavailable.", ep.Name)
+	}
+}
+
+// SetAddress makes this Broker addressable by setting the hostname. It also
+// sets the BrokerConditionAddressable to true.
+func (bs *BrokerStatus) SetAddress(url *apis.URL) {
+	bs.Address.URL = url
+	if url != nil {
+		brokerCondSet.Manage(bs).MarkTrue(BrokerConditionAddressable)
+	} else {
+		brokerCondSet.Manage(bs).MarkFalse(BrokerConditionAddressable, "emptyURL", "URL is empty")
+	}
+}
+
 func (bs *BrokerStatus) MarkTopicFailed(reason, format string, args ...interface{}) {
 	brokerCondSet.Manage(bs).MarkFalse(BrokerConditionTopic, reason, format, args...)
 }
@@ -75,23 +104,4 @@ func (bs *BrokerStatus) MarkSubscriptionReady() {
 
 func (bs *BrokerStatus) MarkIngressFailed(reason, format string, args ...interface{}) {
 	brokerCondSet.Manage(bs).MarkFalse(BrokerConditionIngress, reason, format, args...)
-}
-
-func (bs *BrokerStatus) PropagateIngressAvailability(ep *corev1.Endpoints) {
-	if duck.EndpointsAreAvailable(ep) {
-		brokerCondSet.Manage(bs).MarkTrue(BrokerConditionIngress)
-	} else {
-		bs.MarkIngressFailed("EndpointsUnavailable", "Endpoints %q are unavailable.", ep.Name)
-	}
-}
-
-// SetAddress makes this Broker addressable by setting the hostname. It also
-// sets the BrokerConditionAddressable to true.
-func (bs *BrokerStatus) SetAddress(url *apis.URL) {
-	bs.Address.URL = url
-	if url != nil {
-		brokerCondSet.Manage(bs).MarkTrue(BrokerConditionAddressable)
-	} else {
-		brokerCondSet.Manage(bs).MarkFalse(BrokerConditionAddressable, "emptyURL", "URL is empty")
-	}
 }
