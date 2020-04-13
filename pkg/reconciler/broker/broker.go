@@ -123,8 +123,6 @@ func (r *Reconciler) ReconcileKind(ctx context.Context, b *brokerv1beta1.Broker)
 		return fmt.Errorf("failed to reconcile triggers: %w", err)
 	}
 
-	logging.FromContext(ctx).Info("targetsConfig", zap.Any("cfg", r.targetsConfig.String()))
-
 	return pkgreconciler.NewEvent(corev1.EventTypeNormal, brokerReconciled, "Broker reconciled: \"%s/%s\"", b.Namespace, b.Name)
 }
 
@@ -133,6 +131,8 @@ func (r *Reconciler) FinalizeKind(ctx context.Context, b *brokerv1beta1.Broker) 
 	logger.Debug("Finalizing Broker", zap.Any("broker", b))
 
 	// Reconcile triggers so they update their status
+	// TODO is this the best way to reconcile triggers when their broker is
+	// being deleted?
 	if err := r.reconcileTriggers(ctx, b); err != nil {
 		logger.Error("Problem reconciling triggers", zap.Error(err))
 		return fmt.Errorf("failed to reconcile triggers: %w", err)

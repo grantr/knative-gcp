@@ -88,7 +88,11 @@ func (r *TriggerReconciler) ReconcileKind(ctx context.Context, t *brokerv1beta1.
 	}
 	t.Status.InitializeConditions()
 
-	t.Status.PropagateBrokerStatus(&b.Status)
+	if b.DeletionTimestamp != nil || b.UID == "" {
+		t.Status.MarkBrokerFailed("BrokerDoesNotExist", "Broker %q does not exist", t.Spec.Broker)
+	} else {
+		t.Status.PropagateBrokerStatus(&b.Status)
+	}
 
 	if err := r.resolveSubscriber(ctx, t, b); err != nil {
 		return err
