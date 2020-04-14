@@ -81,15 +81,15 @@ type BrokerStatus struct {
 
 	// ProjectID is the resolved project ID in use by the Broker's pubsub resources.
 	// +optional
-	ProjectID string `json:"projectId,omitempty"`
+	//ProjectID string `json:"projectId,omitempty"`
 
 	// TopicID is the created topic ID used by the Broker.
 	// +optional
-	TopicID string `json:"topicId,omitempty"`
+	//TopicID string `json:"topicId,omitempty"`
 
 	// SubscriptionID is the created subscription ID used by the Broker.
 	// +optional
-	SubscriptionID string `json:"subscriptionId,omitempty"`
+	//SubscriptionID string `json:"subscriptionId,omitempty"`
 }
 
 // +k8s:deepcopy-gen:interfaces=k8s.io/apimachinery/pkg/runtime.Object
