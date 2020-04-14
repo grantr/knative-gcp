@@ -120,9 +120,8 @@ func (r *TriggerReconciler) ReconcileKind(ctx context.Context, t *brokerv1beta1.
 			Address:          t.Status.SubscriberURI.String(),
 			FilterAttributes: t.Spec.Filter.Attributes,
 			RetryQueue: &config.Queue{
-				//TODO should this use the status fields or the name generator funcs?
-				Topic:        t.Status.TopicID,
-				Subscription: t.Status.SubscriptionID,
+				Topic:        resources.GenerateRetryTopicName(t),
+				Subscription: resources.GenerateRetrySubscriptionName(t),
 			},
 		}
 		if t.Status.IsReady() {
@@ -190,7 +189,8 @@ func (r *TriggerReconciler) reconcileRetryTopicAndSubscription(ctx context.Conte
 		return err
 	}
 	// Set the projectID in the status.
-	trig.Status.ProjectID = projectID
+	//TODO uncomment when eventing webhook allows this
+	//trig.Status.ProjectID = projectID
 
 	client, err := r.CreateClientFn(ctx, projectID)
 	if err != nil {
@@ -239,7 +239,8 @@ func (r *TriggerReconciler) reconcileRetryTopicAndSubscription(ctx context.Conte
 
 	trig.Status.MarkTopicReady()
 	// TODO(grantr): this isn't actually persisted due to webhook issues.
-	trig.Status.TopicID = topic.ID()
+	//TODO uncomment when eventing webhook allows this
+	//trig.Status.TopicID = topic.ID()
 
 	// Check if PullSub exists, and if not, create it.
 	subID := resources.GenerateRetrySubscriptionName(trig)
@@ -278,7 +279,8 @@ func (r *TriggerReconciler) reconcileRetryTopicAndSubscription(ctx context.Conte
 
 	trig.Status.MarkSubscriptionReady()
 	// TODO(grantr): this isn't actually persisted due to webhook issues.
-	trig.Status.SubscriptionID = sub.ID()
+	//TODO uncomment when eventing webhook allows this
+	//trig.Status.SubscriptionID = sub.ID()
 
 	return nil
 }

@@ -185,9 +185,8 @@ func (r *Reconciler) reconcileBroker(ctx context.Context, b *brokerv1beta1.Broke
 		m.SetID(string(b.UID))
 		m.SetAddress(b.Status.Address.URL.String())
 		m.SetDecoupleQueue(&config.Queue{
-			//TODO should this use the status fields or the name generator funcs?
-			Topic:        b.Status.TopicID,
-			Subscription: b.Status.SubscriptionID,
+			Topic:        resources.GenerateDecouplingTopicName(b),
+			Subscription: resources.GenerateDecouplingSubscriptionName(b),
 		})
 		if b.Status.IsReady() {
 			m.SetState(config.State_READY)
@@ -213,7 +212,8 @@ func (r *Reconciler) reconcileDecouplingTopicAndSubscription(ctx context.Context
 		return err
 	}
 	// Set the projectID in the status.
-	b.Status.ProjectID = projectID
+	//TODO uncomment when eventing webhook allows this
+	//b.Status.ProjectID = projectID
 
 	client, err := r.CreateClientFn(ctx, projectID)
 	if err != nil {
@@ -255,7 +255,8 @@ func (r *Reconciler) reconcileDecouplingTopicAndSubscription(ctx context.Context
 
 	b.Status.MarkTopicReady()
 	// TODO(grantr): this isn't actually persisted due to webhook issues.
-	b.Status.TopicID = topic.ID()
+	//TODO uncomment when eventing webhook allows this
+	//b.Status.TopicID = topic.ID()
 
 	// Check if PullSub exists, and if not, create it.
 	subID := resources.GenerateDecouplingSubscriptionName(b)
@@ -291,11 +292,11 @@ func (r *Reconciler) reconcileDecouplingTopicAndSubscription(ctx context.Context
 		logger.Info("Created PubSub subscription", zap.String("name", sub.ID()))
 		r.Recorder.Eventf(b, corev1.EventTypeNormal, subCreated, "Created PubSub subscription %q", sub.ID())
 	}
-	//TODO update the subscription's config if needed.
 
 	b.Status.MarkSubscriptionReady()
 	// TODO(grantr): this isn't actually persisted due to webhook issues.
-	b.Status.SubscriptionID = sub.ID()
+	//TODO uncomment when eventing webhook allows this
+	//b.Status.SubscriptionID = sub.ID()
 
 	return nil
 }

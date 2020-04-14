@@ -141,8 +141,9 @@ func TestAllCases(t *testing.T) {
 				WithBrokerClass(brokerv1beta1.BrokerClass),
 				WithBrokerUID(testUID),
 				WithBrokerReadyURI(brokerAddress),
-				WithBrokerProjectID(testProject),
-				WithBrokerTopicAndSubID("cre-bkr_testnamespace_test-broker_abc123")),
+				//WithBrokerProjectID(testProject),
+				//WithBrokerTopicAndSubID("cre-bkr_testnamespace_test-broker_abc123"),
+			),
 		}},
 		WantEvents: []string{
 			brokerFinalizerUpdatedEvent,
