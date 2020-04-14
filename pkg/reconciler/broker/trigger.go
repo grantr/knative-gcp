@@ -209,6 +209,8 @@ func (r *TriggerReconciler) reconcileRetryTopicAndSubscription(ctx context.Conte
 	}
 
 	if !exists {
+		// TODO If this can ever change through the Broker's lifecycle, add
+		// update handling
 		topicConfig := &gpubsub.TopicConfig{
 			Labels: map[string]string{
 				"resource":  "triggers",
@@ -252,6 +254,8 @@ func (r *TriggerReconciler) reconcileRetryTopicAndSubscription(ctx context.Conte
 	}
 
 	if !subExists {
+		// TODO If this can ever change through the Broker's lifecycle, add
+		// update handling
 		subConfig := gpubsub.SubscriptionConfig{
 			Topic: topic,
 			Labels: map[string]string{

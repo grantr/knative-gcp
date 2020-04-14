@@ -40,6 +40,7 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 	corev1listers "k8s.io/client-go/listers/core/v1"
 	"k8s.io/client-go/tools/cache"
+	"knative.dev/eventing/pkg/apis/eventing"
 	"knative.dev/eventing/pkg/logging"
 	"knative.dev/eventing/pkg/reconciler/names"
 	"knative.dev/pkg/apis"
@@ -232,6 +233,8 @@ func (r *Reconciler) reconcileDecouplingTopicAndSubscription(ctx context.Context
 	}
 
 	if !exists {
+		// TODO If this can ever change through the Broker's lifecycle, add
+		// update handling
 		topicConfig := &gpubsub.TopicConfig{
 			Labels: map[string]string{
 				"resource":     "brokers",
@@ -268,6 +271,8 @@ func (r *Reconciler) reconcileDecouplingTopicAndSubscription(ctx context.Context
 	}
 
 	if !subExists {
+		// TODO If this can ever change through the Broker's lifecycle, add
+		// update handling
 		subConfig := gpubsub.SubscriptionConfig{
 			Topic: topic,
 			Labels: map[string]string{
@@ -362,10 +367,11 @@ func (r *Reconciler) deleteDecouplingTopicAndSubscription(ctx context.Context, b
 // reconcileTriggers reconciles the Triggers that are pointed to this broker
 func (r *Reconciler) reconcileTriggers(ctx context.Context, b *brokerv1beta1.Broker) error {
 
-	// TODO(grantr): Filter by `eventing.knative.dev/broker: name` here
+	// Filter by `eventing.knative.dev/broker: <name>` here
 	// to get only the triggers for this broker. The trigger webhook will
 	// ensure that triggers are always labeled with their broker name.
-	triggers, err := r.triggerLister.Triggers(b.Namespace).List(labels.Everything())
+	triggers, err := r.triggerLister.Triggers(b.Namespace).List(
+		labels.SelectorFromSet(map[string]string{eventing.BrokerLabelKey: b.Name}))
 	if err != nil {
 		return err
 	}
