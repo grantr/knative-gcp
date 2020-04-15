@@ -102,10 +102,11 @@ func WithTriggerStatusObservedGeneration(gen int64) TriggerOption {
 	}
 }
 
-// WithTriggerBrokerReady initializes the Triggers's conditions.
+// WithTriggerBrokerReady initializes the Triggers's conditions as if its
+// Broker were ready.
 func WithTriggerBrokerReady() TriggerOption {
 	return func(t *brokerv1beta1.Trigger) {
-		//t.Status.PropagateBrokerStatus(v1alpha1.TestHelper.ReadyBrokerStatus())
+		t.Status.PropagateBrokerStatus(ReadyBrokerStatus())
 	}
 }
 

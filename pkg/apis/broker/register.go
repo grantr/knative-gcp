@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package messaging contains API versions for the Cloud Run Events broker.
+// Package broker contains API versions for the Cloud Run Events broker.
 // This is registered under eventing.knative.dev group so we can add custom
 // fields to the status.
 package broker

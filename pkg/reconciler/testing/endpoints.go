@@ -67,12 +67,14 @@ func WithEndpointsAnnotations(annotations map[string]string) EndpointsOption {
 }
 
 func AvailableEndpoints() *corev1.Endpoints {
-	ep := &corev1.Endpoints{}
-	ep.Name = "available"
-	ep.Subsets = []corev1.EndpointSubset{{
-		Addresses: []corev1.EndpointAddress{{
-			IP: "127.0.0.1",
+	return &corev1.Endpoints{
+		ObjectMeta: metav1.ObjectMeta{
+			Name: "available",
+		},
+		Subsets: []corev1.EndpointSubset{{
+			Addresses: []corev1.EndpointAddress{{
+				IP: "127.0.0.1",
+			}},
 		}},
-	}}
-	return ep
+	}
 }

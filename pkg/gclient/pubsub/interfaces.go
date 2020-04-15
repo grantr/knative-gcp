@@ -19,6 +19,7 @@ package pubsub
 import (
 	"context"
 
+	"cloud.google.com/go/pubsub"
 	"github.com/google/knative-gcp/pkg/gclient/iam"
 )
 
@@ -36,10 +37,10 @@ type Client interface {
 	// CreateTopic see https://godoc.org/cloud.google.com/go/pubsub#Client.CreateTopic
 	CreateTopic(ctx context.Context, id string) (Topic, error)
 	// CreateTopicWithConfig see https://godoc.org/cloud.google.com/go/pubsub#Client.CreateTopicWithConfig
-	CreateTopicWithConfig(ctx context.Context, id string, cfg *TopicConfig) (Topic, error)
+	CreateTopicWithConfig(ctx context.Context, id string, cfg *pubsub.TopicConfig) (Topic, error)
 }
 
-// Client matches the interface exposed by pubsub.Subscription
+// Subscription matches the interface exposed by pubsub.Subscription
 // see https://godoc.org/cloud.google.com/go/pubsub#Subscription
 type Subscription interface {
 	// Exists see https://godoc.org/cloud.google.com/go/pubsub#Subscription.Exists
@@ -54,7 +55,7 @@ type Subscription interface {
 	ID() string
 }
 
-// Client matches the interface exposed by pubsub.Topic
+// Topic matches the interface exposed by pubsub.Topic
 // see https://godoc.org/cloud.google.com/go/pubsub#Topic
 type Topic interface {
 	// Exists see https://godoc.org/cloud.google.com/go/pubsub#Topic.Exists

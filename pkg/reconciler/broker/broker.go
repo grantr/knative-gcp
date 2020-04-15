@@ -14,6 +14,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
+// Package broker implements the Broker controller and reconciler reconciling
+// Brokers and Triggers.
 package broker
 
 import (
@@ -22,6 +24,7 @@ import (
 	"fmt"
 	"time"
 
+	"cloud.google.com/go/pubsub"
 	"github.com/gogo/protobuf/proto"
 	brokerv1beta1 "github.com/google/knative-gcp/pkg/apis/broker/v1beta1"
 	"github.com/google/knative-gcp/pkg/broker/config"
@@ -235,7 +238,7 @@ func (r *Reconciler) reconcileDecouplingTopicAndSubscription(ctx context.Context
 	if !exists {
 		// TODO If this can ever change through the Broker's lifecycle, add
 		// update handling
-		topicConfig := &gpubsub.TopicConfig{
+		topicConfig := &pubsub.TopicConfig{
 			Labels: map[string]string{
 				"resource":     "brokers",
 				"broker_class": brokerv1beta1.BrokerClass,

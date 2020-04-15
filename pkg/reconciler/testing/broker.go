@@ -91,12 +91,10 @@ func WithBrokerDeletionTimestamp(b *brokerv1beta1.Broker) {
 
 // WithBrokerAddress sets the Broker's address.
 func WithBrokerAddress(address string) BrokerOption {
-	return func(b *brokerv1beta1.Broker) {
-		b.Status.SetAddress(&apis.URL{
-			Scheme: "http",
-			Host:   address,
-		})
-	}
+	return WithBrokerAddressURI(&apis.URL{
+		Scheme: "http",
+		Host:   address,
+	})
 }
 
 // WithBrokerAddressURI sets the Broker's address as URI.
@@ -104,6 +102,13 @@ func WithBrokerAddressURI(uri *apis.URL) BrokerOption {
 	return func(b *brokerv1beta1.Broker) {
 		b.Status.SetAddress(uri)
 	}
+}
+
+func WithBrokerReady(address string) BrokerOption {
+	return WithBrokerReadyURI(&apis.URL{
+		Scheme: "http",
+		Host:   address,
+	})
 }
 
 // WithBrokerReadyURI is a convenience function that sets all ready conditions to
@@ -136,19 +141,6 @@ func WithBrokerTopicReady(b *brokerv1beta1.Broker) {
 	b.Status.MarkTopicReady()
 }
 
-func WithBrokerProjectID(id string) BrokerOption {
-	return func(b *brokerv1beta1.Broker) {
-		b.Status.ProjectID = id
-	}
-}
-
-func WithBrokerTopicAndSubID(id string) BrokerOption {
-	return func(b *brokerv1beta1.Broker) {
-		b.Status.TopicID = id
-		b.Status.SubscriptionID = id
-	}
-}
-
 func WithBrokerClass(bc string) BrokerOption {
 	return func(b *brokerv1beta1.Broker) {
 		annotations := b.GetAnnotations()
@@ -158,4 +150,9 @@ func WithBrokerClass(bc string) BrokerOption {
 		annotations[eventingv1beta1.BrokerClassAnnotationKey] = bc
 		b.SetAnnotations(annotations)
 	}
+}
+
+func ReadyBrokerStatus() *brokerv1beta1.BrokerStatus {
+	b := NewBroker("knative-testing", "ready", WithBrokerReady("http://foo"))
+	return &b.Status
 }

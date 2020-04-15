@@ -20,6 +20,7 @@ import (
 	"context"
 	"fmt"
 
+	"cloud.google.com/go/pubsub"
 	brokerv1beta1 "github.com/google/knative-gcp/pkg/apis/broker/v1beta1"
 	"github.com/google/knative-gcp/pkg/broker/config"
 	triggerreconciler "github.com/google/knative-gcp/pkg/client/injection/reconciler/broker/v1beta1/trigger"
@@ -28,7 +29,6 @@ import (
 	"github.com/google/knative-gcp/pkg/reconciler/broker/resources"
 	"github.com/google/knative-gcp/pkg/utils"
 	"go.uber.org/zap"
-	gstatus "google.golang.org/grpc/status"
 	corev1 "k8s.io/api/core/v1"
 	apierrs "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -211,7 +211,7 @@ func (r *TriggerReconciler) reconcileRetryTopicAndSubscription(ctx context.Conte
 	if !exists {
 		// TODO If this can ever change through the Broker's lifecycle, add
 		// update handling
-		topicConfig := &gpubsub.TopicConfig{
+		topicConfig := &pubsub.TopicConfig{
 			Labels: map[string]string{
 				"resource":  "triggers",
 				"namespace": trig.Namespace,
@@ -223,14 +223,6 @@ func (r *TriggerReconciler) reconcileRetryTopicAndSubscription(ctx context.Conte
 		logger.Debug("Creating topic with cfg", zap.String("id", topicID), zap.Any("cfg", topicConfig))
 		topic, err = client.CreateTopicWithConfig(ctx, topicID, topicConfig)
 		if err != nil {
-			// For some reason (maybe some cache invalidation thing), sometimes t.Exists returns that the topic
-			// doesn't exist but it actually does. When we try to create it again, it fails with an AlreadyExists
-			// reason. We check for that error here. If it happens, then return nil.
-			if _, ok := gstatus.FromError(err); !ok {
-				logger.Error("Failed from Pub/Sub client while creating topic", zap.Error(err))
-				trig.Status.MarkTopicFailed("CreationFailed", "Topic creation failed: %w", err)
-				return err
-			}
 			logger.Error("Failed to create Pub/Sub topic", zap.Error(err))
 			trig.Status.MarkTopicFailed("CreationFailed", "Topic creation failed: %w", err)
 			return err

@@ -90,15 +90,8 @@ func (c *pubsubClient) CreateTopic(ctx context.Context, id string) (Topic, error
 }
 
 // CreateTopicWithConfig implements pubsub.Client.CreateTopicWithConfig
-func (c *pubsubClient) CreateTopicWithConfig(ctx context.Context, id string, cfg *TopicConfig) (Topic, error) {
-	tcfg := &pubsub.TopicConfig{
-		MessageStoragePolicy: pubsub.MessageStoragePolicy{
-			AllowedPersistenceRegions: cfg.MessageStoragePolicy.AllowedPersistenceRegions,
-		},
-		Labels:     cfg.Labels,
-		KMSKeyName: cfg.KMSKeyName,
-	}
-	topic, err := c.client.CreateTopicWithConfig(ctx, id, tcfg)
+func (c *pubsubClient) CreateTopicWithConfig(ctx context.Context, id string, cfg *pubsub.TopicConfig) (Topic, error) {
+	topic, err := c.client.CreateTopicWithConfig(ctx, id, cfg)
 	if err != nil {
 		return nil, err
 	}

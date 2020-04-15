@@ -19,26 +19,21 @@ package v1beta1
 import (
 	corev1 "k8s.io/api/core/v1"
 	"knative.dev/eventing/pkg/apis/duck"
+	eventingv1beta1 "knative.dev/eventing/pkg/apis/eventing/v1beta1"
 	"knative.dev/pkg/apis"
 )
 
 var brokerCondSet = apis.NewLivingConditionSet(
 	BrokerConditionIngress,
-	BrokerConditionAddressable,
-
+	eventingv1beta1.BrokerConditionAddressable,
 	BrokerConditionTopic,
-
 	BrokerConditionSubscription,
 )
 
 const (
-	BrokerConditionReady = apis.ConditionReady
 	// BrokerConditionIngress reports the availability of the Broker's ingress
 	// service.
 	BrokerConditionIngress apis.ConditionType = "IngressReady"
-	// BrokerConditionAddressable reports the status of the Broker's ingress
-	// address.
-	BrokerConditionAddressable apis.ConditionType = "Addressable"
 	// BrokerConditionTopic reports the status of the Broker's PubSub topic.
 	// THis condition is specific to the Google Cloud Broker.
 	BrokerConditionTopic apis.ConditionType = "TopicReady"
@@ -80,9 +75,9 @@ func (bs *BrokerStatus) PropagateIngressAvailability(ep *corev1.Endpoints) {
 func (bs *BrokerStatus) SetAddress(url *apis.URL) {
 	bs.Address.URL = url
 	if url != nil {
-		brokerCondSet.Manage(bs).MarkTrue(BrokerConditionAddressable)
+		brokerCondSet.Manage(bs).MarkTrue(eventingv1beta1.BrokerConditionAddressable)
 	} else {
-		brokerCondSet.Manage(bs).MarkFalse(BrokerConditionAddressable, "emptyURL", "URL is empty")
+		brokerCondSet.Manage(bs).MarkFalse(eventingv1beta1.BrokerConditionAddressable, "emptyURL", "URL is empty")
 	}
 }
 

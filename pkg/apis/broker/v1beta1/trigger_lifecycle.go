@@ -18,34 +18,22 @@ package v1beta1
 
 import (
 	corev1 "k8s.io/api/core/v1"
+	eventingv1beta1 "knative.dev/eventing/pkg/apis/eventing/v1beta1"
 	"knative.dev/pkg/apis"
 	duckv1 "knative.dev/pkg/apis/duck/v1"
 )
 
 var triggerCondSet = apis.NewLivingConditionSet(
-	TriggerConditionBroker,
+	eventingv1beta1.TriggerConditionBroker,
+	eventingv1beta1.TriggerConditionDependency,
+	eventingv1beta1.TriggerConditionSubscriberResolved,
 	TriggerConditionTopic,
 	TriggerConditionSubscription,
-	TriggerConditionDependency,
-	TriggerConditionSubscriberResolved,
 )
 
 const (
-	// TriggerConditionReady has status True when all subconditions below have been set to True.
-	TriggerConditionReady = apis.ConditionReady
-
-	TriggerConditionBroker apis.ConditionType = "BrokerReady"
-
-	TriggerConditionTopic apis.ConditionType = "TopicReady"
-
+	TriggerConditionTopic        apis.ConditionType = "TopicReady"
 	TriggerConditionSubscription apis.ConditionType = "SubscriptionReady"
-
-	TriggerConditionDependency apis.ConditionType = "DependencyReady"
-
-	TriggerConditionSubscriberResolved apis.ConditionType = "SubscriberResolved"
-
-	// TriggerAnyFilter Constant to represent that we should allow anything.
-	TriggerAnyFilter = ""
 )
 
 // GetCondition returns the condition currently associated with the given type, or nil.
@@ -79,7 +67,7 @@ func (ts *TriggerStatus) PropagateBrokerStatus(bs *BrokerStatus) {
 	case bc.Status == corev1.ConditionUnknown:
 		ts.MarkBrokerUnknown(bc.Reason, bc.Message)
 	case bc.Status == corev1.ConditionTrue:
-		triggerCondSet.Manage(ts).MarkTrue(TriggerConditionBroker)
+		triggerCondSet.Manage(ts).MarkTrue(eventingv1beta1.TriggerConditionBroker)
 	case bc.Status == corev1.ConditionFalse:
 		ts.MarkBrokerFailed(bc.Reason, bc.Message)
 	default:
@@ -88,15 +76,15 @@ func (ts *TriggerStatus) PropagateBrokerStatus(bs *BrokerStatus) {
 }
 
 func (ts *TriggerStatus) MarkBrokerFailed(reason, messageFormat string, messageA ...interface{}) {
-	triggerCondSet.Manage(ts).MarkFalse(TriggerConditionBroker, reason, messageFormat, messageA...)
+	triggerCondSet.Manage(ts).MarkFalse(eventingv1beta1.TriggerConditionBroker, reason, messageFormat, messageA...)
 }
 
 func (ts *TriggerStatus) MarkBrokerUnknown(reason, messageFormat string, messageA ...interface{}) {
-	triggerCondSet.Manage(ts).MarkUnknown(TriggerConditionBroker, reason, messageFormat, messageA...)
+	triggerCondSet.Manage(ts).MarkUnknown(eventingv1beta1.TriggerConditionBroker, reason, messageFormat, messageA...)
 }
 
 func (ts *TriggerStatus) MarkBrokerNotConfigured() {
-	triggerCondSet.Manage(ts).MarkUnknown(TriggerConditionBroker,
+	triggerCondSet.Manage(ts).MarkUnknown(eventingv1beta1.TriggerConditionBroker,
 		"BrokerNotConfigured", "Broker has not yet been reconciled.")
 }
 
@@ -117,31 +105,31 @@ func (bs *TriggerStatus) MarkSubscriptionReady() {
 }
 
 func (ts *TriggerStatus) MarkSubscriberResolvedSucceeded() {
-	triggerCondSet.Manage(ts).MarkTrue(TriggerConditionSubscriberResolved)
+	triggerCondSet.Manage(ts).MarkTrue(eventingv1beta1.TriggerConditionSubscriberResolved)
 }
 
 func (ts *TriggerStatus) MarkSubscriberResolvedFailed(reason, messageFormat string, messageA ...interface{}) {
-	triggerCondSet.Manage(ts).MarkFalse(TriggerConditionSubscriberResolved, reason, messageFormat, messageA...)
+	triggerCondSet.Manage(ts).MarkFalse(eventingv1beta1.TriggerConditionSubscriberResolved, reason, messageFormat, messageA...)
 }
 
 func (ts *TriggerStatus) MarkSubscriberResolvedUnknown(reason, messageFormat string, messageA ...interface{}) {
-	triggerCondSet.Manage(ts).MarkUnknown(TriggerConditionSubscriberResolved, reason, messageFormat, messageA...)
+	triggerCondSet.Manage(ts).MarkUnknown(eventingv1beta1.TriggerConditionSubscriberResolved, reason, messageFormat, messageA...)
 }
 
 func (ts *TriggerStatus) MarkDependencySucceeded() {
-	triggerCondSet.Manage(ts).MarkTrue(TriggerConditionDependency)
+	triggerCondSet.Manage(ts).MarkTrue(eventingv1beta1.TriggerConditionDependency)
 }
 
 func (ts *TriggerStatus) MarkDependencyFailed(reason, messageFormat string, messageA ...interface{}) {
-	triggerCondSet.Manage(ts).MarkFalse(TriggerConditionDependency, reason, messageFormat, messageA...)
+	triggerCondSet.Manage(ts).MarkFalse(eventingv1beta1.TriggerConditionDependency, reason, messageFormat, messageA...)
 }
 
 func (ts *TriggerStatus) MarkDependencyUnknown(reason, messageFormat string, messageA ...interface{}) {
-	triggerCondSet.Manage(ts).MarkUnknown(TriggerConditionDependency, reason, messageFormat, messageA...)
+	triggerCondSet.Manage(ts).MarkUnknown(eventingv1beta1.TriggerConditionDependency, reason, messageFormat, messageA...)
 }
 
 func (ts *TriggerStatus) MarkDependencyNotConfigured() {
-	triggerCondSet.Manage(ts).MarkUnknown(TriggerConditionDependency,
+	triggerCondSet.Manage(ts).MarkUnknown(eventingv1beta1.TriggerConditionDependency,
 		"DependencyNotConfigured", "Dependency has not yet been reconciled.")
 }
 

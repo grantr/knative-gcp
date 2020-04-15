@@ -18,6 +18,8 @@ limitations under the License.
 // backward compatibility by supporting multiple concurrent versions
 // of the same resource.
 
+// Package v1beta1 defines the custom Broker and Trigger types in
+// eventing.knative.dev/v1beta1 used for the Google Cloud Broker.
 // +k8s:deepcopy-gen=package
 // +groupName=eventing.knative.dev
 package v1beta1
