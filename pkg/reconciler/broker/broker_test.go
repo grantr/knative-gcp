@@ -50,7 +50,7 @@ const (
 	testUID     = "abc123"
 	systemNS    = "knative-testing"
 
-	finalizerName = "brokers.eventing.knative.dev"
+	brokerFinalizerName = "brokers.eventing.knative.dev"
 )
 
 var (
@@ -141,8 +141,6 @@ func TestAllCases(t *testing.T) {
 				WithBrokerClass(brokerv1beta1.BrokerClass),
 				WithBrokerUID(testUID),
 				WithBrokerReadyURI(brokerAddress),
-				//WithBrokerProjectID(testProject),
-				//WithBrokerTopicAndSubID("cre-bkr_testnamespace_test-broker_abc123"),
 			),
 		}},
 		WantEvents: []string{
@@ -152,7 +150,7 @@ func TestAllCases(t *testing.T) {
 			brokerReconciledEvent,
 		},
 		WantPatches: []clientgotesting.PatchActionImpl{
-			patchFinalizers(testNS, brokerName),
+			patchFinalizers(testNS, brokerName, brokerFinalizerName),
 		},
 	}}
 
@@ -174,11 +172,20 @@ func TestAllCases(t *testing.T) {
 	}))
 }
 
-func patchFinalizers(namespace, name string) clientgotesting.PatchActionImpl {
+func patchFinalizers(namespace, name, finalizer string) clientgotesting.PatchActionImpl {
 	action := clientgotesting.PatchActionImpl{}
 	action.Name = name
 	action.Namespace = namespace
-	patch := `{"metadata":{"finalizers":["` + finalizerName + `"],"resourceVersion":""}}`
+	patch := `{"metadata":{"finalizers":["` + finalizer + `"],"resourceVersion":""}}`
+	action.Patch = []byte(patch)
+	return action
+}
+
+func patchRemoveFinalizers(namespace, name string) clientgotesting.PatchActionImpl {
+	action := clientgotesting.PatchActionImpl{}
+	action.Name = name
+	action.Namespace = namespace
+	patch := `{"metadata":{"finalizers":[],"resourceVersion":""}}`
 	action.Patch = []byte(patch)
 	return action
 }

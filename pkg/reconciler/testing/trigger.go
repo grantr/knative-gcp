@@ -23,6 +23,7 @@ import (
 	brokerv1beta1 "github.com/google/knative-gcp/pkg/apis/broker/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"knative.dev/eventing/pkg/apis/eventing"
 	"knative.dev/eventing/pkg/apis/eventing/v1alpha1"
 	eventingv1beta1 "knative.dev/eventing/pkg/apis/eventing/v1beta1"
 	"knative.dev/pkg/apis"
@@ -38,6 +39,10 @@ func NewTrigger(name, namespace, broker string, to ...TriggerOption) *brokerv1be
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: namespace,
+			// Webhook normally adds these
+			Labels: map[string]string{
+				eventing.BrokerLabelKey: broker,
+			},
 		},
 		Spec: eventingv1beta1.TriggerSpec{
 			Broker: broker,
@@ -104,10 +109,8 @@ func WithTriggerStatusObservedGeneration(gen int64) TriggerOption {
 
 // WithTriggerBrokerReady initializes the Triggers's conditions as if its
 // Broker were ready.
-func WithTriggerBrokerReady() TriggerOption {
-	return func(t *brokerv1beta1.Trigger) {
-		t.Status.PropagateBrokerStatus(brokerv1beta1.TestHelper.ReadyBrokerStatus())
-	}
+func WithTriggerBrokerReady(t *brokerv1beta1.Trigger) {
+	t.Status.PropagateBrokerStatus(brokerv1beta1.TestHelper.ReadyBrokerStatus())
 }
 
 // WithTriggerBrokerFailed marks the Broker as failed
@@ -149,10 +152,8 @@ func WithDependencyAnnotation(dependencyAnnotation string) TriggerOption {
 	}
 }
 
-func WithTriggerDependencyReady() TriggerOption {
-	return func(t *brokerv1beta1.Trigger) {
-		t.Status.MarkDependencySucceeded()
-	}
+func WithTriggerDependencyReady(t *brokerv1beta1.Trigger) {
+	t.Status.MarkDependencySucceeded()
 }
 
 func WithTriggerDependencyFailed(reason, message string) TriggerOption {
@@ -167,10 +168,8 @@ func WithTriggerDependencyUnknown(reason, message string) TriggerOption {
 	}
 }
 
-func WithTriggerSubscriberResolvedSucceeded() TriggerOption {
-	return func(t *brokerv1beta1.Trigger) {
-		t.Status.MarkSubscriberResolvedSucceeded()
-	}
+func WithTriggerSubscriberResolvedSucceeded(t *brokerv1beta1.Trigger) {
+	t.Status.MarkSubscriberResolvedSucceeded()
 }
 
 func WithTriggerSubscriberResolvedFailed(reason, message string) TriggerOption {
@@ -185,8 +184,15 @@ func WithTriggerSubscriberResolvedUnknown(reason, message string) TriggerOption 
 	}
 }
 
-// TODO: this can be a runtime object
-func WithTriggerDeleted(t *brokerv1beta1.Trigger) {
+func WithTriggerSubscriptionReady(t *brokerv1beta1.Trigger) {
+	t.Status.MarkSubscriptionReady()
+}
+
+func WithTriggerTopicReady(t *brokerv1beta1.Trigger) {
+	t.Status.MarkTopicReady()
+}
+
+func WithTriggerDeletionTimestamp(t *brokerv1beta1.Trigger) {
 	deleteTime := metav1.NewTime(time.Unix(1e9, 0))
 	t.ObjectMeta.SetDeletionTimestamp(&deleteTime)
 }
@@ -194,5 +200,11 @@ func WithTriggerDeleted(t *brokerv1beta1.Trigger) {
 func WithTriggerUID(uid string) TriggerOption {
 	return func(t *brokerv1beta1.Trigger) {
 		t.UID = types.UID(uid)
+	}
+}
+
+func WithTriggerFinalizers(finalizers ...string) TriggerOption {
+	return func(t *brokerv1beta1.Trigger) {
+		t.Finalizers = finalizers
 	}
 }

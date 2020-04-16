@@ -62,6 +62,10 @@ type TriggerReconciler struct {
 	// CreateClientFn is the function used to create the Pub/Sub client that interacts with Pub/Sub.
 	// This is needed so that we can inject a mock client for UTs purposes.
 	CreateClientFn gpubsub.CreateFn
+
+	// projectID is used as the GCP project ID when present, skipping the
+	// metadata server check. Used by tests.
+	projectID string
 }
 
 // Check that TriggerReconciler implements Interface
@@ -113,16 +117,18 @@ func (r *TriggerReconciler) ReconcileKind(ctx context.Context, t *brokerv1beta1.
 
 	targetsConfig.MutateBroker(b.Namespace, b.Name, func(m config.BrokerMutation) {
 		target := &config.Target{
-			Id:               string(t.UID),
-			Name:             t.Name,
-			Namespace:        t.Namespace,
-			Broker:           b.Name,
-			Address:          t.Status.SubscriberURI.String(),
-			FilterAttributes: t.Spec.Filter.Attributes,
+			Id:        string(t.UID),
+			Name:      t.Name,
+			Namespace: t.Namespace,
+			Broker:    b.Name,
+			Address:   t.Status.SubscriberURI.String(),
 			RetryQueue: &config.Queue{
 				Topic:        resources.GenerateRetryTopicName(t),
 				Subscription: resources.GenerateRetrySubscriptionName(t),
 			},
+		}
+		if t.Spec.Filter != nil && t.Spec.Filter.Attributes != nil {
+			target.FilterAttributes = t.Spec.Filter.Attributes
 		}
 		if t.Status.IsReady() {
 			target.State = config.State_READY
@@ -183,7 +189,7 @@ func (r *TriggerReconciler) reconcileRetryTopicAndSubscription(ctx context.Conte
 	logger.Debug("Reconciling retry topic")
 	// get ProjectID from metadata
 	//TODO get from context
-	projectID, err := utils.ProjectID("")
+	projectID, err := utils.ProjectID(r.projectID)
 	if err != nil {
 		logger.Error("Failed to find project id", zap.Error(err))
 		return err
@@ -287,7 +293,7 @@ func (r *TriggerReconciler) deleteRetryTopicAndSubscription(ctx context.Context,
 
 	// get ProjectID from metadata
 	//TODO get from context
-	projectID, err := utils.ProjectID("")
+	projectID, err := utils.ProjectID(r.projectID)
 	if err != nil {
 		logger.Error("Failed to find project id", zap.Error(err))
 		return err
