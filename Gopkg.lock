@@ -1855,6 +1855,7 @@
     "knative.dev/eventing/pkg/logging",
     "knative.dev/eventing/pkg/reconciler/names",
     "knative.dev/eventing/pkg/tracing",
+    "knative.dev/eventing/pkg/utils",
     "knative.dev/eventing/test",
     "knative.dev/eventing/test/conformance/helpers",
     "knative.dev/eventing/test/e2e/helpers",
