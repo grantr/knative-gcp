@@ -19,37 +19,11 @@ package v1beta1
 import (
 	"context"
 
-	eventingv1beta1 "knative.dev/eventing/pkg/apis/eventing/v1beta1"
 	"knative.dev/pkg/apis"
-	"knative.dev/pkg/kmp"
 )
 
 func (b *Broker) Validate(ctx context.Context) *apis.FieldError {
-	withNS := apis.AllowDifferentNamespace(apis.WithinParent(ctx, b.ObjectMeta))
-	return b.Spec.Validate(withNS).ViaField("spec")
-}
-
-func (b *Broker) CheckImmutableFields(ctx context.Context, original *Broker) *apis.FieldError {
-	if original == nil {
-		return nil
-	}
-
-	// Make sure you can't change the class annotation.
-	diff, err := kmp.ShortDiff(original.GetAnnotations()[eventingv1beta1.BrokerClassAnnotationKey], b.GetAnnotations()[eventingv1beta1.BrokerClassAnnotationKey])
-
-	if err != nil {
-		return &apis.FieldError{
-			Message: "couldn't diff the Broker objects",
-			Details: err.Error(),
-		}
-	}
-
-	if diff != "" {
-		return &apis.FieldError{
-			Message: "Immutable fields changed (-old +new)",
-			Paths:   []string{"annotations"},
-			Details: diff,
-		}
-	}
+	// The Google Cloud Broker doesn't have any custom validations. The
+	// eventing webhook will run the usual validations.
 	return nil
 }

@@ -18,14 +18,10 @@ package v1beta1
 
 import (
 	"context"
-
-	"knative.dev/eventing/pkg/apis/eventing"
-	"knative.dev/pkg/apis"
 )
 
 // SetDefaults sets the default field values for a Broker.
 func (b *Broker) SetDefaults(ctx context.Context) {
-	withNS := apis.WithinParent(ctx, b.ObjectMeta)
-	b.Spec.SetDefaults(withNS)
-	eventing.DefaultBrokerClassIfUnset(withNS, &b.ObjectMeta)
+	// The Google Cloud Broker doesn't have any custom defaults. The
+	// eventing webhook will add the usual defaults.
 }

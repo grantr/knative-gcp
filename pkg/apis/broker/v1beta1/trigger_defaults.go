@@ -18,24 +18,10 @@ package v1beta1
 
 import (
 	"context"
-
-	"knative.dev/pkg/apis"
-)
-
-const (
-	brokerLabel = "eventing.knative.dev/broker"
 )
 
 // SetDefaults sets the default field values for a Trigger.
 func (t *Trigger) SetDefaults(ctx context.Context) {
-	withNS := apis.WithinParent(ctx, t.ObjectMeta)
-	t.Spec.SetDefaults(withNS)
-	setLabels(t)
-}
-
-func setLabels(t *Trigger) {
-	if len(t.Labels) == 0 {
-		t.Labels = map[string]string{}
-	}
-	t.Labels[brokerLabel] = t.Spec.Broker
+	// The Google Cloud Broker doesn't have any custom defaults. The
+	// eventing webhook will add the usual defaults.
 }
