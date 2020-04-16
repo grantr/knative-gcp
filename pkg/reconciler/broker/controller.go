@@ -100,11 +100,14 @@ func NewController(ctx context.Context, cmw configmap.Watcher) *controller.Impl 
 	tr.addressableTracker = duck.NewListableTracker(ctx, addressable.Get, impl.EnqueueKey, controller.GetTrackerLease(ctx))
 	tr.uriResolver = resolver.NewURIResolver(ctx, impl.EnqueueKey)
 
-	brokerInformer.Informer().AddEventHandler(cache.FilteringResourceEventHandler{
-		// Only reconcile brokers with the proper class annotation
-		FilterFunc: pkgreconciler.AnnotationFilterFunc(eventingv1beta1.BrokerClassAnnotationKey, brokerv1beta1.BrokerClass, false /*allowUnset*/),
-		Handler:    controller.HandleAll(impl.Enqueue),
-	})
+	brokerInformer.Informer().AddEventHandlerWithResyncPeriod(
+		cache.FilteringResourceEventHandler{
+			// Only reconcile brokers with the proper class annotation
+			FilterFunc: pkgreconciler.AnnotationFilterFunc(eventingv1beta1.BrokerClassAnnotationKey, brokerv1beta1.BrokerClass, false /*allowUnset*/),
+			Handler:    controller.HandleAll(impl.Enqueue),
+		},
+		reconciler.DefaultResyncPeriod,
+	)
 
 	// Don't watch the targets configmap because it would require reconciling
 	// all brokers every update. In normal operation this
