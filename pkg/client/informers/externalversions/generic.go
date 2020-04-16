@@ -23,6 +23,7 @@ import (
 
 	v1beta1 "github.com/google/knative-gcp/pkg/apis/broker/v1beta1"
 	v1alpha1 "github.com/google/knative-gcp/pkg/apis/events/v1alpha1"
+	v1beta1 "github.com/google/knative-gcp/pkg/apis/events/v1beta1"
 	messagingv1alpha1 "github.com/google/knative-gcp/pkg/apis/messaging/v1alpha1"
 	policyv1alpha1 "github.com/google/knative-gcp/pkg/apis/policy/v1alpha1"
 	pubsubv1alpha1 "github.com/google/knative-gcp/pkg/apis/pubsub/v1alpha1"
@@ -74,6 +75,16 @@ func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Events().V1alpha1().CloudSchedulerSources().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("cloudstoragesources"):
 		return &genericInformer{resource: resource.GroupResource(), informer: f.Events().V1alpha1().CloudStorageSources().Informer()}, nil
+
+		// Group=events.cloud.google.com, Version=v1beta1
+	case v1beta1.SchemeGroupVersion.WithResource("cloudauditlogssources"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Events().V1beta1().CloudAuditLogsSources().Informer()}, nil
+	case v1beta1.SchemeGroupVersion.WithResource("cloudpubsubsources"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Events().V1beta1().CloudPubSubSources().Informer()}, nil
+	case v1beta1.SchemeGroupVersion.WithResource("cloudschedulersources"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Events().V1beta1().CloudSchedulerSources().Informer()}, nil
+	case v1beta1.SchemeGroupVersion.WithResource("cloudstoragesources"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Events().V1beta1().CloudStorageSources().Informer()}, nil
 
 		// Group=messaging.cloud.google.com, Version=v1alpha1
 	case messagingv1alpha1.SchemeGroupVersion.WithResource("channels"):

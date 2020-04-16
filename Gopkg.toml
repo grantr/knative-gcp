@@ -31,15 +31,20 @@ required = [
   name = "knative.dev/pkg"
   branch = "release-0.14"
 
+# Our master branch tracks knative/test-infra master or a release.
+[[override]]
+  name = "knative.dev/test-infra"
+  branch = "release-0.14"
+
 # This is a preemptive override.
 [[override]]
   name = "knative.dev/eventing"
-  branch = "master"
+  branch = "release-0.14"
 
 # This is a preemptive override.
 [[override]]
   name = "knative.dev/serving"
-  branch = "master"
+  branch = "release-0.14"
 
 [[override]]
   name = "go.uber.org/zap"

@@ -1,5 +1,5 @@
 /*
-Copyright 2020 The Knative Authors
+Copyright 2020 Google LLC
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -14,21 +14,24 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-package duck
+package config
 
 import (
-	"knative.dev/pkg/apis"
-	"knative.dev/pkg/kmeta"
-
-	duckv1alpha1 "github.com/google/knative-gcp/pkg/apis/duck/v1alpha1"
+	"testing"
 )
 
-type Identifiable interface {
-	kmeta.OwnerRefable
-	// IdentitySpec returns the IdentitySpec portion of the Spec.
-	IdentitySpec() *duckv1alpha1.IdentitySpec
-	// IdentityStatus returns the IdentityStatus portion of the Status.
-	IdentityStatus() *duckv1alpha1.IdentityStatus
-	// ConditionSet returns the apis.ConditionSet of the embedding object
-	ConditionSet() *apis.ConditionSet
+func TestBrokerKey(t *testing.T) {
+	want := "namespace/broker"
+	got := BrokerKey("namespace", "broker")
+	if got != want {
+		t.Errorf("unexpected readiness: want %v, got %v", want, got)
+	}
+}
+
+func TestTriggerKeyAndSplitTriggerKey(t *testing.T) {
+	want := "namespace/broker/target"
+	got := TriggerKey(SplitTriggerKey(want))
+	if got != want {
+		t.Errorf("unexpected readiness: want %v, got %v", want, got)
+	}
 }
