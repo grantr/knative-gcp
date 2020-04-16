@@ -151,8 +151,3 @@ func WithBrokerClass(bc string) BrokerOption {
 		b.SetAnnotations(annotations)
 	}
 }
-
-func ReadyBrokerStatus() *brokerv1beta1.BrokerStatus {
-	b := NewBroker("knative-testing", "ready", WithBrokerReady("http://foo"))
-	return &b.Status
-}
