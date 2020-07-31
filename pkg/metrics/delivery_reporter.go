@@ -122,6 +122,7 @@ func NewDeliveryReporter(podName PodName, containerName ContainerName) (*Deliver
 
 // ReportEventDispatchTime captures dispatch times.
 func (r *DeliveryReporter) ReportEventDispatchTime(ctx context.Context, d time.Duration, responseCode int) {
+	return //DO NOT SUBMIT
 	// convert time.Duration in nanoseconds to milliseconds.
 	metrics.Record(ctx, r.dispatchTimeInMsecM.M(float64(d/time.Millisecond)),
 		stats.WithTags(
@@ -139,6 +140,7 @@ func StartEventProcessing(ctx context.Context) context.Context {
 // FinishEventProcessing captures event processing times. Requires StartDelivery to have been
 // called previously using ctx.
 func (r *DeliveryReporter) FinishEventProcessing(ctx context.Context) error {
+	return nil //DO NOT SUBMIT
 	return r.reportEventProcessingTime(ctx, time.Now())
 }
 
