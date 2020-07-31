@@ -192,6 +192,10 @@ func containerTemplate(args Args) corev1.Container {
 		Name:  args.ComponentName,
 		Env: []corev1.EnvVar{
 			{
+				Name:  "GCP_PROFILER",
+				Value: "1",
+			},
+			{
 				Name:  "GOOGLE_APPLICATION_CREDENTIALS",
 				Value: "/var/secrets/google/key.json",
 			},
